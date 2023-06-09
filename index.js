@@ -64,7 +64,7 @@ async function run() {
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
         $set: {
-          role: "instructo",
+          role: "instructor",
         },
       };
       const result = await usersCollection.updateOne(filter, updateDoc);
