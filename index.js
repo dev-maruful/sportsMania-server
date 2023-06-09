@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://sportsManiaAdmin:RdwgG4mepOQlEn1d@cluster0.s92qhby.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.s92qhby.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -26,6 +26,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("sportsManiaDB").collection("users");
+    const classesCollection = client.db("sportsManiaDB").collection("classes");
 
     // users related APIs
     app.post("/users", async (req, res) => {
@@ -38,6 +39,17 @@ async function run() {
       }
 
       const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // classes related APIs
+    app.get("/classes", async (req, res) => {
+      const result = await classesCollection
+        .find()
+        .sort({
+          numStudents: -1,
+        })
+        .toArray();
       res.send(result);
     });
 
