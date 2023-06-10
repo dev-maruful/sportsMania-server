@@ -58,6 +58,12 @@ async function run() {
     });
 
     // users related APIs
+    app.get("/users/instructors", async (req, res) => {
+      const query = { role: "instructor" };
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
@@ -136,12 +142,33 @@ async function run() {
 
     // classes related APIs
     app.get("/classes", async (req, res) => {
+      let query = {};
+
+      if (req.query.email) {
+        query = {
+          instructorEmail: req.query.email,
+        };
+      }
+
       const result = await classesCollection
-        .find()
+        .find(query)
         .sort({
           numStudents: -1,
         })
         .toArray();
+      res.send(result);
+    });
+
+    app.post("/classes", async (req, res) => {
+      const classData = req.body;
+      const query = { className: classData.className };
+      const existingClass = await classesCollection.findOne(query);
+
+      if (existingClass) {
+        return res.send({ message: "Class already exists" });
+      }
+
+      const result = await classesCollection.insertOne(classData);
       res.send(result);
     });
 
