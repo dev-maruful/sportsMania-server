@@ -47,6 +47,9 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("sportsManiaDB").collection("users");
+    const naturesCollection = client
+      .db("sportsManiaDB")
+      .collection("natureActivities");
     const classesCollection = client.db("sportsManiaDB").collection("classes");
 
     app.post("/jwt", (req, res) => {
@@ -150,12 +153,7 @@ async function run() {
         };
       }
 
-      const result = await classesCollection
-        .find(query)
-        .sort({
-          numStudents: -1,
-        })
-        .toArray();
+      const result = await classesCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -169,6 +167,12 @@ async function run() {
       }
 
       const result = await classesCollection.insertOne(classData);
+      res.send(result);
+    });
+
+    // nature activities api
+    app.get("/nature", async (req, res) => {
+      const result = await naturesCollection.find().toArray();
       res.send(result);
     });
 
