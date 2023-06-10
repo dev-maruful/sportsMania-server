@@ -63,6 +63,13 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
+
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
@@ -76,31 +83,32 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/users/admin/:email", verifyJWT, async (req, res) => {
-      const email = req.params.email;
+    // app.get("/users/admin/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   console.log(email);
 
-      if (req.decoded.email !== email) {
-        res.send({ admin: false });
-      }
+    //   if (req.decoded.email !== email) {
+    //     res.send({ admin: false });
+    //   }
 
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      const result = { admin: user?.role === "admin" };
-      res.send(result);
-    });
+    //   const query = { email: email };
+    //   const user = await usersCollection.findOne(query);
+    //   const result = { admin: user?.role === "admin" };
+    //   res.send(result);
+    // });
 
-    app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
-      const email = req.params.email;
+    // app.get("/users/instructor/:email", async (req, res) => {
+    //   const email = req.params.email;
 
-      if (req.decoded.email !== email) {
-        res.send({ instructor: false });
-      }
+    //   if (req.decoded.email !== email) {
+    //     res.send({ instructor: false });
+    //   }
 
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      const result = { instructor: user?.role === "instructor" };
-      res.send(result);
-    });
+    //   const query = { email: email };
+    //   const user = await usersCollection.findOne(query);
+    //   const result = { instructor: user?.role === "instructor" };
+    //   res.send(result);
+    // });
 
     app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
