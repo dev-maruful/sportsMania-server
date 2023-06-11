@@ -47,6 +47,9 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("sportsManiaDB").collection("users");
+    const studentsClassesCollection = client
+      .db("sportsManiaDB")
+      .collection("studentsclasses");
     const naturesCollection = client
       .db("sportsManiaDB")
       .collection("natureActivities");
@@ -210,6 +213,48 @@ async function run() {
       }
 
       const result = await classesCollection.insertOne(classData);
+      res.send(result);
+    });
+
+    app.get("/classes/studentselected", async (req, res) => {
+      let query = {};
+
+      if (req.query.email) {
+        query = {
+          studentEmail: req.query.email,
+        };
+      }
+
+      const result = await studentsClassesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/classes/studentselected", async (req, res) => {
+      const classData = req.body;
+      const query = {
+        className: classData.className,
+        studentEmail: classData.studentEmail,
+      };
+
+      const existingClass = await studentsClassesCollection.findOne(query);
+
+      if (existingClass) {
+        return res.send({ message: "Class already selected" });
+      }
+
+      const result = await studentsClassesCollection.insertOne(classData);
+      res.send(result);
+    });
+
+    app.delete("/classes/studentselected/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await studentsClassesCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.get("/classes/studentselected", async (req, res) => {
+      const result = await studentsClassesCollection.find().toArray();
       res.send(result);
     });
 
