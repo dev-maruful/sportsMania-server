@@ -55,6 +55,9 @@ async function run() {
       .db("sportsManiaDB")
       .collection("natureActivities");
     const classesCollection = client.db("sportsManiaDB").collection("classes");
+    const paymentsCollection = client
+      .db("sportsManiaDB")
+      .collection("payments");
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -154,6 +157,20 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/classes/approved/:name", async (req, res) => {
+      const name = req.params.name;
+      const { availableSeats, enrolled } = req.body;
+      const filter = { className: name };
+      const updateDoc = {
+        $set: {
+          availableSeats: availableSeats,
+          enrolled: enrolled,
+        },
+      };
+      const result = await classesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     app.patch("/classes/approved/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -200,7 +217,10 @@ async function run() {
         };
       }
 
-      const result = await classesCollection.find(query).toArray();
+      const result = await classesCollection
+        .find(query)
+        .sort({ enrolled: -1 })
+        .toArray();
       res.send(result);
     });
 
@@ -278,6 +298,17 @@ async function run() {
       res.send({
         clientSecret: paymentIntent.client_secret,
       });
+    });
+
+    // payment related api
+    app.post("/payments", async (req, res) => {
+      const payment = req.body;
+      const insertResult = await paymentsCollection.insertOne(payment);
+
+      const query = { _id: new ObjectId(payment.classId) };
+      const deleteResult = await studentsClassesCollection.deleteOne(query);
+
+      res.send({ insertResult, deleteResult });
     });
 
     // Send a ping to confirm a successful connection
