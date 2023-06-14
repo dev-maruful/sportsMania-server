@@ -261,7 +261,7 @@ async function run() {
 
       const result = await paymentsCollection
         .find(query)
-        .sort({ data: -1 })
+        .sort({ date: -1 })
         .toArray();
       res.send(result);
     });
